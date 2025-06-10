@@ -1,0 +1,26 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.filters.hp_filter import hpfilter
+
+# ① CSVファイル読み込み
+df = pd.read_csv('spain_gdp.csv')
+
+# 日付列（A列）を日時型に変換し、インデックスに設定
+df['A'] = pd.to_datetime(df['A'])
+df.set_index('A', inplace=True)
+
+# ② 対数変換（B列がGDP値）
+df_log = np.log(df['B'])
+
+# ③ HPフィルターでトレンドとサイクルに分解（lamb=1600は四半期データの標準）
+cycle, trend = hpfilter(df_log, lamb=1600)
+
+# ④ グラフ表示
+plt.figure(figsize=(12,6))
+plt.plot(df_log.index, df_log, label='Log GDP')
+plt.plot(trend.index, trend, label='Trend')
+plt.plot(cycle.index, cycle, label='Cycle')
+plt.legend()
+plt.title('HP Filter Decomposition of Spain GDP')
+plt.show()
